@@ -81,6 +81,9 @@ class BBTopo(Topo):
         switch = self.addSwitch('s0')
 
         # TODO: Add links with appropriate characteristics
+        linkh1 = self.addLink('h1')
+        linkh2 = self.addLink('h2')
+
 
 # Simple wrappers around monitoring utilities.  You are welcome to
 # contribute neatly written (using classes) monitoring scripts for
@@ -111,6 +114,8 @@ def start_iperf(net):
     server = h2.popen("iperf -s -w 16m")
     # TODO: Start the iperf client on h1.  Ensure that you create a
     # long lived TCP flow. You may need to redirect iperf's stdout to avoid blocking.
+    h1 = net.get('h1')
+    client = h1.popen("iperf -s -w 16m", stdout=PIPE)
 
 def start_webserver(net):
     h1 = net.get('h1')
@@ -131,6 +136,7 @@ def start_ping(net):
     # redirecting stdout
     h1 = net.get('h1')
     popen = h1.popen("echo '' > %s/ping.txt"%(args.dir), shell=True)
+    
 
 def bufferbloat():
     if not os.path.exists(args.dir):
