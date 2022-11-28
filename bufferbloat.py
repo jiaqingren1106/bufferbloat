@@ -58,7 +58,6 @@ parser.add_argument('--maxq',
 
 # Linux uses CUBIC-TCP by default that doesn't have the usual sawtooth
 # behaviour.  For those who are curious, invoke this script with
-# --cong cubic and see what happens...
 # sysctl -a | grep cong should list some interesting parameters.
 parser.add_argument('--cong',
                     help="Congestion control algorithm to use",
@@ -81,8 +80,8 @@ class BBTopo(Topo):
         switch = self.addSwitch('s0')
 
         # TODO: Add links with appropriate characteristics
-        linkh1 = self.addLink('h1')
-        linkh2 = self.addLink('h2')
+        linkh1 = self.addLink(hosts[0],switch,bw=10,delay='5ms',loss=2,max_queue_size=1000,use_htb=True)
+        linkh2 = self.addLink(switch,host[1],bw=10,delay='5ms',loss=2,max_queue_size=1000,use_htb=True)
 
 
 # Simple wrappers around monitoring utilities.  You are welcome to
@@ -208,4 +207,6 @@ def bufferbloat():
     Popen("pgrep -f webserver.py | xargs kill -9", shell=True).wait()
 
 if __name__ == "__main__":
+    print(arg)
     bufferbloat()
+    
