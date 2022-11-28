@@ -114,7 +114,8 @@ def start_iperf(net):
     # TODO: Start the iperf client on h1.  Ensure that you create a
     # long lived TCP flow. You may need to redirect iperf's stdout to avoid blocking.
     h1 = net.get('h1')
-    client = h1.popen("iperf -s -w 16m", stdout=PIPE)
+    # client = h1.popen("iperf -s -w 16m", stdout="out.txt")
+    net.iperf((h1,h2), l4Type = 'TCP', 	seconds = 0.016)
 
 def start_webserver(net):
     h1 = net.get('h1')
@@ -134,8 +135,9 @@ def start_ping(net):
     # until stdout is read. You can avoid this by runnning popen.communicate() or
     # redirecting stdout
     h1 = net.get('h1')
-    popen = h1.popen("echo '' > %s/ping.txt"%(args.dir), shell=True)
-    
+    # popen = h1.popen("echo '' > %s/ping.txt"%(args.dir), shell=True)
+    popen = h1.popen("ping -s 0.1 %s > %s/ping.txt"%(net.get('h2'),args.dir), shell=True)
+    popen.communicate()
 
 def bufferbloat():
     if not os.path.exists(args.dir):
@@ -164,12 +166,14 @@ def bufferbloat():
     # Depending on the order you add links to your network, this
     # number may be 1 or 2.  Ensure you use the correct number.
     #
-    # qmon = start_qmon(iface='s0-eth2',
-    #                  outfile='%s/q.txt' % (args.dir))
-    qmon = None
+    qmon = start_qmon(iface='s0-eth2',
+                     outfile='%s/q.txt' % (args.dir))
+    # qmon = None
 
     # TODO: Start iperf, webservers, etc.
-    # start_iperf(net)
+    start_iperf(net)
+    start_ping(net)
+    start_webserver(net)
 
     # Hint: The command below invokes a CLI which you can use to
     # debug.  It allows you to run arbitrary commands inside your
@@ -188,6 +192,13 @@ def bufferbloat():
     while True:
         # do the measurement (say) 3 times.
         sleep(1)
+
+        time_list = [0,0,0]
+        for i in range(3):
+            time_list[i] = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + " /http/index.html")
+        
+        print(time_list)
+
         now = time()
         delta = now - start_time
         if delta > args.time:
