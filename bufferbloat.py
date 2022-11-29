@@ -80,8 +80,8 @@ class BBTopo(Topo):
         switch = self.addSwitch('s0')
 
         # TODO: Add links with appropriate characteristics
-        linkh1 = self.addLink(hosts[0],switch,bw=10,delay='5ms',loss=2,max_queue_size=1000,use_htb=True)
-        linkh2 = self.addLink(switch,host[1],bw=10,delay='5ms',loss=2,max_queue_size=1000,use_htb=True)
+        linkh1 = self.addLink(hosts[0],switch,bw=args.bw_host,delay=args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
+        linkh2 = self.addLink(switch,hosts[1],bw=args.bw_net,delay=args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
 
 
 # Simple wrappers around monitoring utilities.  You are welcome to
@@ -115,7 +115,10 @@ def start_iperf(net):
     # long lived TCP flow. You may need to redirect iperf's stdout to avoid blocking.
     h1 = net.get('h1')
     # client = h1.popen("iperf -s -w 16m", stdout="out.txt")
-    net.iperf((h1,h2), l4Type = 'TCP', 	seconds = 0.016)
+    temp = net.iperf((h1,h2), l4Type = 'TCP', 	seconds = args.time)
+   # print("\n\n\n")
+   # print(temp)
+   # print("\n\n\n")
 
 def start_webserver(net):
     h1 = net.get('h1')
@@ -136,8 +139,8 @@ def start_ping(net):
     # redirecting stdout
     h1 = net.get('h1')
     # popen = h1.popen("echo '' > %s/ping.txt"%(args.dir), shell=True)
-    popen = h1.popen("ping -s 0.1 %s > %s/ping.txt"%(net.get('h2'),args.dir), shell=True)
-    popen.communicate()
+    popen = h1.popen("ping -i 0.1 %s > %s/ping.txt"%(net.get('h2').IP(),args.dir), shell=True)
+    
 
 def bufferbloat():
     if not os.path.exists(args.dir):
@@ -172,7 +175,6 @@ def bufferbloat():
 
     # TODO: Start iperf, webservers, etc.
     start_iperf(net)
-    start_ping(net)
     start_webserver(net)
 
     # Hint: The command below invokes a CLI which you can use to
@@ -188,18 +190,26 @@ def bufferbloat():
     # spawned on host h1 (not from google!)
     # Hint: have a separate function to do this and you may find the
     # loop below useful.
+
+    res_list = []
+    mod_count = 0
+
     start_time = time()
     while True:
         # do the measurement (say) 3 times.
+       
+	now = time()
+	if ((now-start_time)/5 >= mod_count):
+     
+            res = 0
+            for i in range(3):
+                proces = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + " /http/index.html")
+	        print(proces.communicate())
+            res_list.append(res)
+	    mod_count += 1
+
         sleep(1)
-
-        time_list = [0,0,0]
-        for i in range(3):
-            time_list[i] = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + " /http/index.html")
         
-        print(time_list)
-
-        now = time()
         delta = now - start_time
         if delta > args.time:
             break
@@ -218,6 +228,6 @@ def bufferbloat():
     Popen("pgrep -f webserver.py | xargs kill -9", shell=True).wait()
 
 if __name__ == "__main__":
-    print(arg)
+    
     bufferbloat()
     
