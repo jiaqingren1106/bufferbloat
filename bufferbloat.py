@@ -80,8 +80,8 @@ class BBTopo(Topo):
         switch = self.addSwitch('s0')
 
         # TODO: Add links with appropriate characteristics
-        linkh1 = self.addLink(hosts[0],switch,bw=args.bw_host,delay=args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
-        linkh2 = self.addLink(switch,hosts[1],bw=args.bw_net,delay=args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
+        linkh1 = self.addLink(hosts[0],switch,bw=args.bw_host,delay='%fms'%args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
+        linkh2 = self.addLink(switch,hosts[1],bw=args.bw_net,delay='%fms'%args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
 
 
 # Simple wrappers around monitoring utilities.  You are welcome to
@@ -116,9 +116,6 @@ def start_iperf(net):
     h1 = net.get('h1')
     # client = h1.popen("iperf -s -w 16m", stdout="out.txt")
     temp = net.iperf((h1,h2), l4Type = 'TCP', 	seconds = args.time)
-   # print("\n\n\n")
-   # print(temp)
-   # print("\n\n\n")
 
 def start_webserver(net):
     h1 = net.get('h1')
