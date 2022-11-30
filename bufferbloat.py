@@ -202,7 +202,7 @@ def bufferbloat():
             res = 0
             for i in range(3):
                 proces = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + "/http/index.html")
-	        print(proces.communicate())
+	        res += float(proces.communicate()[0])
             res_list.append(res)
 	    mod_count += 1
 
@@ -212,10 +212,16 @@ def bufferbloat():
         if delta > args.time:
             break
         print "%.1fs left..." % (args.time - delta)
+ 
 
     # TODO: compute average (and standard deviation) of the fetch
     # times.  You don't need to plot them.  Just note it in your
     # README and explain.
+
+    print(res_list)
+    print(sum(res_list)/len(res_list))
+    print( (sum((x-(sum(res_list)/len(res_list)))**2 for x in res_list)/(len(res_list)-1))**0.5 )
+
 
     stop_tcpprobe()
     if qmon is not None:
