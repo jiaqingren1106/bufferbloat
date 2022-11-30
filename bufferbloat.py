@@ -80,8 +80,10 @@ class BBTopo(Topo):
         switch = self.addSwitch('s0')
 
         # TODO: Add links with appropriate characteristics
-        linkh1 = self.addLink(hosts[0],switch,bw=args.bw_host,delay='%fms'%args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
-        linkh2 = self.addLink(switch,hosts[1],bw=args.bw_net,delay='%fms'%args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
+	opts1 = dict(bw=args.bw_host,delay='%fms'%args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
+        linkh1 = self.addLink(hosts[0],switch,**opts1)
+	opts2 = dict(bw=args.bw_net,delay='%fms'%args.delay,loss=0,max_queue_size=args.maxq,use_htb=True)
+        linkh2 = self.addLink(switch,hosts[1],**opts2)
 
 
 # Simple wrappers around monitoring utilities.  You are welcome to
@@ -114,8 +116,8 @@ def start_iperf(net):
     # TODO: Start the iperf client on h1.  Ensure that you create a
     # long lived TCP flow. You may need to redirect iperf's stdout to avoid blocking.
     h1 = net.get('h1')
-    # client = h1.popen("iperf -s -w 16m", stdout="out.txt")
-    temp = net.iperf((h1,h2), l4Type = 'TCP', 	seconds = args.time)
+    client = h1.popen("iperf -c " + h2.IP() +" -t "+ str(args.time) +" -w 16m")
+
 
 def start_webserver(net):
     h1 = net.get('h1')
@@ -135,8 +137,7 @@ def start_ping(net):
     # until stdout is read. You can avoid this by runnning popen.communicate() or
     # redirecting stdout
     h1 = net.get('h1')
-    # popen = h1.popen("echo '' > %s/ping.txt"%(args.dir), shell=True)
-    popen = h1.popen("ping -i 0.1 %s > %s/ping.txt"%(net.get('h2').IP(),args.dir), shell=True)
+    popen = h1.popen("ping -i 0.1 "+net.get('h2').IP()+" > "+args.dir+"/ping.txt", shell=True)
     
 
 def bufferbloat():
@@ -200,8 +201,8 @@ def bufferbloat():
      
             res = 0
             for i in range(3):
-                proces = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + " /http/index.html")
-	        print(proces.communicate())
+                proces = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + "/http/index.html")
+	       # print(proces.communicate())
             res_list.append(res)
 	    mod_count += 1
 
