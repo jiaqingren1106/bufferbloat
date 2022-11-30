@@ -115,8 +115,8 @@ def start_iperf(net):
     server = h2.popen("iperf -s -w 16m")
     # TODO: Start the iperf client on h1.  Ensure that you create a
     # long lived TCP flow. You may need to redirect iperf's stdout to avoid blocking.
-    h1 = net.get('h1')
-    client = h1.popen("iperf -c " + h2.IP() +" -t "+ str(args.time) +" -w 16m")
+   
+    client = net.get('h1').popen("iperf -c " + h2.IP() +" -t "+ str(args.time) +" -w 16m")
 
 
 def start_webserver(net):
@@ -136,8 +136,8 @@ def start_ping(net):
     # Note that if the command prints out a lot of text to stdout, it will block
     # until stdout is read. You can avoid this by runnning popen.communicate() or
     # redirecting stdout
-    h1 = net.get('h1')
-    popen = h1.popen("ping -i 0.1 "+net.get('h2').IP()+" > "+args.dir+"/ping.txt", shell=True)
+    
+    popen = net.get('h1').popen("ping -i 0.1 "+net.get('h2').IP()+" > "+args.dir+"/ping.txt", shell=True)
     
 
 def bufferbloat():
@@ -202,7 +202,7 @@ def bufferbloat():
             res = 0
             for i in range(3):
                 proces = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + "/http/index.html")
-	       # print(proces.communicate())
+	        print(proces.communicate())
             res_list.append(res)
 	    mod_count += 1
 
