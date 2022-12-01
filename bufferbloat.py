@@ -192,41 +192,33 @@ def bufferbloat():
     res_list = []
     mod_count = 0
 
-   # triple = 0
-   # answer = 0
+    triple = 0
+    answer = 0
 
     start_time = time()
     while True:
-        # do the measurement (say) 3 times.
        
 	now = time()
 
-
         if ((now-start_time)/5 >= mod_count):
-     
-            res = 0
             for i in range(3):
                 proces = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + "/http/index.html")
-	        res += float(proces.communicate()[0])
-            res_list.append(res)
+                res_list.append(float(proces.communicate()[0]))
 	    mod_count += 1
  
-
 
        # factor = (now-start_time)/5
        # remainder = (now-start_time)%5
     
-        #if (factor>=mod_count):
-         #   proces = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + "/http/index.html")
-          #  answer += float(proces.communicate()[0])
-           # triple += 1
+       # if (factor>=mod_count):
+        #    proces = net.get('h2').popen("curl -o /dev/null -s -w %{time_total} " + net.get('h1').IP() + "/http/index.html")
+         #   answer += float(proces.communicate()[0])
+          #  triple += 1
            # if (triple >= 3):
             #    triple = 0
              #   res_list.append(answer)
               #  answer = 0
                # mod_count += 1       
-        
-  
 
         sleep(1)
         
