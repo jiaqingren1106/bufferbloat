@@ -23,3 +23,5 @@ The link between host2 and switch has a smaller bandwidth than link between host
 for queue size 20, the RTT graph oscilating between 10 to 50 and the queue graph oscilating between 5 to 20. For queue size 100, the RTT graph oscilating between 50 to 250 and the queue graph oscilating between 20 to 100. the ratio is approximately 2.5 for both queue size. the equation is around RTT = 2.5 * queue size, which is linear. 
 
 4. 
+ 1. use smaller buffers for router and switches to decrease RTT
+ 2. Increase the bottlenet bandwidth of the link to increase the draining rate of switches/Routers.
