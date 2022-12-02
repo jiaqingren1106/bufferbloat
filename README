@@ -3,8 +3,10 @@ Instructions:
 
 
 Fetch Time for queue size 20
+
     average: 0.5655
     standard deviation: 0.2819
+
 Fetch Time for queue size 100
     average: 1.1705
     standard deviation: 0.6457
